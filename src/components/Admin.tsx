@@ -8,6 +8,7 @@ const StudentList = () => {
     const [loading, setLoading] = useState(true);
     const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
     const [selectedGrade, setSelectedGrade] = useState<string>("all");
+    const [searchQuery, setSearchQuery] = useState<string>("");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,25 +20,47 @@ const StudentList = () => {
     }, []);
 
     // ✅ Filter students whenever selectedGrade or students change
+  
     useEffect(() => {
-        if (selectedGrade === "all") {
-            setFilteredStudents(students); // ✅ Show all students when "all" is selected
-        } else {
-            setFilteredStudents(students.filter(student => student.grade === selectedGrade));
+        let filtered = students;
+
+        if (selectedGrade !== "all") {
+            filtered = filtered.filter(student => student.grade === selectedGrade);
         }
-    }, [selectedGrade, students]);
+
+        if (searchQuery.trim() !== "") {
+            const lowercasedQuery = searchQuery.toLowerCase();
+            filtered = filtered.filter(student =>
+                student.studentName.toLowerCase().includes(lowercasedQuery) ||
+                student.mobile.includes(lowercasedQuery)
+            );
+        }
+
+        setFilteredStudents(filtered);
+    }, [selectedGrade, searchQuery, students]);
     
 
     return (
         <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto">
-                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-10 pt-6">
-                    📋       </h2>
-                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-10 ">
+                <h2 className="text-5xl sm:text-4xl font-bold text-gray-900 text-center mb-4 pt-1">
+                    📋 </h2>
+                <h1  className="text-2xl sm:text-4xl font-bold text-gray-900 text-center mb-10 ">
+                    GenZ Classes
+                </h1>
+                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-1 ">
                     Student Applications
                 </h2>
-
-
+                {/*🔍 Search by name or mobile number*/}    
+                <div className="flex flex-col sm:flex-row justify-center items-center mb-6 space-y-4 sm:space-y-0 sm:space-x-4 mt-2">
+                    <input
+                        type="text"
+                        placeholder="Search by name or mobile number"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="p-3 w-[90%] rounded-2xl border-2 border-black rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>    
                 {/* 🔍 Filter Dropdown */}
                 <div className="mb-6 flex justify-center">
                     <select
